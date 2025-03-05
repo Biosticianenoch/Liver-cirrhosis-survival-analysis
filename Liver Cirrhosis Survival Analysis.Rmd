@@ -1,0 +1,115 @@
+---
+title: "LIVER CIRRHOSIS SURVIVAL ANALYSIS"
+author: "Enock Bereka"
+date: "2025-02-04"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load necessary libraries
+```{r warning=FALSE, message=FALSE}
+library(survminer)
+library(survival)
+library(flexsurv)
+library(tidyverse)
+```
+
+## Load and inspect the dataset
+```{r warning=FALSE, message=FALSE}
+data <- read_csv("C:/Users/PC/OneDrive/Desktop/Data Science/Datasets/survival/cirrhosis.csv")
+glimpse(data)
+anyNA(data)
+data <- drop_na(data)
+duplicated(data) %>% table()
+```
+
+## Convert character variables to factors
+```{r warning=FALSE, message=FALSE}
+data <- data %>% mutate_if(is.character, as.factor)
+```
+
+## What is the probability of survival over time for cirrhosis patients?
+## How does survival differ between treatment groups (D-penicillamine vs. placebo)?
+## Kaplan-Meier Model
+```{r warning=FALSE, message=FALSE}
+km_fit <- survfit(Surv(N_Days, Status == "D") ~ Drug, data = data)
+km_fit
+```
+
+## We had 136 participants under D-penicillamine when the study began. 57 of the participants died from liver cirrhosis during the study.
+## We had 140 participants under Placebo when the study began. 54 of them died from liver cirrhosis during the study.
+## Half the participants under D-penicillamine survived beyond 3086 days half did not.
+## Half the participants under Placebo survived beyond 3428 days half did not.
+
+## Log-rank test
+```{r warning=FALSE, message=FALSE}
+log_rank <- survdiff(Surv(N_Days, Status == "D") ~Drug , data = data)
+log_rank
+```
+
+## There was no significant difference in survival between those participants under Placebo and those under D-penicillamine 
+
+## Plot Kaplan-Meier survival curves
+```{r warning=FALSE, message=FALSE}
+ggsurvplot(km_fit, data = data, 
+           conf.int = FALSE, 
+           pval = TRUE, 
+           mark.time = T,
+           risk.table = TRUE, 
+           legend.title = "Treatment Group", 
+           xlab = "Days", ylab = "Survival Probability",
+           title = "Kaplan-Meier Survival Curves for Cirrhosis Patients",
+           lower.tail = FALSE)
+```
+
+## The kaplan meier survival curve shows a clear stratification based on Drug, with those under D-penicillamine having slightly shorter survival time compared to those under Placebo
+
+## Which factors significantly affect survival
+## Fit Cox Proportional Hazards Model
+```{r warning=FALSE, message=FALSE}
+cox_fit <- coxph(Surv(N_Days, Status == "D") ~ Drug + Age + Sex + Bilirubin + Albumin + Ascites + Edema + Stage, data = data)
+```
+
+## Summarize results
+```{r warning=FALSE, message=FALSE}
+summary(cox_fit)
+```
+
+## There were 276 participants in the study and 111 particants died from Liver cirrhosis.
+## Likelihood Ratio Test, Wald Test and Score Test
+## These tests assesses whether the included covariates are statistically signicant.
+## All tests yielded a p-value of 2e-16, explaining the covariates significantly explain the hazard rates and survival time.
+## The model yielded a concordance of 0.834 suggesting it high predictive power.
+## Participants under Placebo have 0.1076 lower risk of death compared to those under D-penicillamine. The p-value is statistically insignificant.
+## For each unit increase in Age, the hazard rate decreases by 0.01%. The p-value is statistically significant.
+## Males have 90.73 higher risk of death compared to female.
+## For each unit increase in Bilirubin , the hazard rate increases by 12.94%
+## For each unit increase in Albumin , the hazard rate decreases by 59.23%
+## Patients with Ascites have 11.89 higher risk of death compared to those without.
+## Patients with EdemaS have 15.90 higher risk of death compared to those without.
+## Patients with EdemaY have 57.45 higher risk of death compared to those without.
+## For each unit increase in stage, the hazard rate increases by 61.26%.
+
+## Check proportional hazard assumption.
+```{r warning=FALSE, message=FALSE}
+ph_tet <- cox.zph(cox_fit)
+print(ph_tet)
+```
+
+## The PH assumption holds globally, suggesting the model is valid. The predictors explain hazard variation modestly well.
+
+## Visualize model assumptions
+```{r warning=FALSE, message=FALSE}
+ggcoxzph(cox.zph(cox_fit))
+```
+
+## Visual inspection of Schoenfeld residual plots  confirms that the PH assumption is not violated.
+
+## Visualize the survival curves.
+```{r warning=FALSE, message=FALSE}
+ggsurvplot(survfit(cox_fit), data = data, risk.table = TRUE)
+```
+
