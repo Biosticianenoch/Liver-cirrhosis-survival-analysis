@@ -98,3 +98,22 @@ The goal is to identify **key medical predictors**, compare treatment effects (*
 Ensure you have **R** installed and the required libraries:  
 ```r
 install.packages(c("survminer", "survival", "flexsurv", "tidyverse"))
+
+🏃‍♂️ Run the Analysis
+1️⃣ Clone the repository:
+
+bash
+git clone https://github.com/your-username/liver-cirrhosis-survival.git
+cd liver-cirrhosis-survival
+2️⃣ Execute the analysis script:
+
+r
+source("analysis.R")
+🤝 Contributing
+💡 Have ideas for improvements? Open an issue or submit a pull request!
+
+📜 License
+🔏 MIT License — Free for usage, modification, and distribution.
+
+📧 Contact
+📩 Questions? Reach out to: 📨 your-email@example.com
