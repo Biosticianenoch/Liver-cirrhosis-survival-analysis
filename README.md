@@ -155,12 +155,7 @@ Free to use, modify, and share — just give credit.
 ## 📬 Contact  
 
 Got questions or feedback?  
-📩 Email: [your-email@example.com](mailto:your-email@example.com)
+📩 Email: [My email](mailto:enochosenwafulah@gmail.com)
 
 ---
 
-## 📎 Extras (Optional Add-Ons)  
-✅ Consider adding:  
-- 🌐 **Shiny dashboard** for interactive exploration  
-- 📓 **Quarto or RMarkdown report** for publishing  
-- 📈 **Animated plots** using `gganimate`
